@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Patch,Query, UsePipes, ValidationPipe, ParseIntPipe, NotImplementedException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Patch, Query, UsePipes, ValidationPipe, ParseIntPipe, NotImplementedException, UseGuards, Logger } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import {Task} from './task.entity'
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -9,9 +9,11 @@ import { AuthGuard } from '@nestjs/passport';
 import { User } from '../auth/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { userInfo } from 'os';
+const TAG = 'tasks.controller'
 @Controller('tasks')
 @UseGuards(AuthGuard()) // protegendo todas as chamadas desse endpoint pra precisar de token
 export class TasksController {
+    private logger = new Logger(TAG+'::TasksController')
     constructor(private tasksService:TasksService){}
     @Get()
     getTasks(
@@ -23,6 +25,7 @@ export class TasksController {
         // }else{
         //     throw new NotImplementedException()
         // }
+        this.logger.verbose(`getTasks::user:${JSON.stringify(user)}::filters:${JSON.stringify(filterDto)}`)
         return this.tasksService.getTasks(filterDto,user)
     }
     @Get('/:id')
@@ -42,6 +45,7 @@ export class TasksController {
         @Body()createTaskDto:CreateTaskDto,
         @GetUser() user:User
     ):Promise<Task>{
+        this.logger.verbose(`createTasks::user:${JSON.stringify(user)}::createTaskDto:${JSON.stringify(createTaskDto)}`)
         return this.tasksService.createTask(createTaskDto,user)
     }
 
