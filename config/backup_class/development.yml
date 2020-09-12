@@ -1,0 +1,8 @@
+db:
+  host: 'localhost'
+  username: 'estudo_postgree'
+  password: '12345678'
+  syncronize: true
+
+jwt:
+  secret: 'topSecret'

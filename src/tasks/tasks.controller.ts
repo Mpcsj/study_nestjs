@@ -8,26 +8,23 @@ import { TaskStatus } from './task-status.enum';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../auth/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
-import { userInfo } from 'os';
+import { ConfigService } from '@nestjs/config';
+import {EnvironmentVariables} from '../../config/interfaces'
 const TAG = 'tasks.controller'
 @Controller('tasks')
 @UseGuards(AuthGuard()) // protegendo todas as chamadas desse endpoint pra precisar de token
 export class TasksController {
-    private logger = new Logger(TAG+'::TasksController')
-    constructor(private tasksService:TasksService){}
+    private logger = new Logger(TAG)
+    constructor(
+        private tasksService:TasksService){}
     @Get()
     getTasks(
         @GetUser()user:User,
         @Query(ValidationPipe) filterDto:GetTasksFilterDto
         ):Promise<Task[]>{
-        // if(!Object.entries(filterDto).length){
-        //     return this.tasksService.getAllTasks()
-        // }else{
-        //     throw new NotImplementedException()
-        // }
-        this.logger.verbose(`getTasks::user:${JSON.stringify(user)}::filters:${JSON.stringify(filterDto)}`)
         return this.tasksService.getTasks(filterDto,user)
     }
+
     @Get('/:id')
     getTaskById(
         @Param('id',ParseIntPipe) id:number,
