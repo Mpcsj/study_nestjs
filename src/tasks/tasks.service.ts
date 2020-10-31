@@ -57,6 +57,7 @@ export class TasksService {
         return task
     }
     async deleteTaskById(id:number,user:User):Promise<void>{
+        console.log(TAG,`deleteTaskById::id:${id}::user:${JSON.stringify(user)}`)
         // let res = await this.getTaskById(id)
         let res = await this.taskRepository.delete({id,userId:user.id})
         if(!res.affected){
@@ -75,10 +76,10 @@ export class TasksService {
     //     return res
     // }
     async updateTaskStatus(id:number,status:TaskStatus,user:User):Promise<Task>{
-        let res2 = this.taskRepository.update({id:id},{status})
         let res = await this.getTaskById(id,user)
+        await this.taskRepository.update({id:id},{status})
         res.status = status
-        await res.save()
+        // await res.save()
         return res
     }
 }

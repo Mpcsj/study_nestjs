@@ -14,7 +14,8 @@ const mockTaskRepository = ()=>({
     getTasks:jest.fn(),
     findOne:jest.fn(),
     createTask:jest.fn(),
-    delete:jest.fn()
+    delete:jest.fn(),
+    update:jest.fn()
 })
 describe('TasksService',()=>{
     let tasksService;
@@ -102,7 +103,38 @@ describe('TasksService',()=>{
         it('throws an error as task could not be found',()=>{
             tasksRepository.delete.mockResolvedValue({affected:0})
             expect(tasksRepository.delete).not.toHaveBeenCalled()
-            expect(tasksService.deleteTaskById(1)).rejects.toThrow(NotFoundException)
+            expect(tasksService.deleteTaskById(1,mockUser)).rejects.toThrow(NotFoundException)
         })
     })
+
+    describe('updateTaskById',()=>{
+        const createTaskDto:CreateTaskDto = {
+            description:'Test description',
+            title:'Test title'
+        }
+        const mockTask= {
+            ...createTaskDto,
+            user:mockUser,
+            status:TaskStatus.OPEN,
+            id:123
+        }
+        it('update a taskById',async()=>{
+            tasksRepository.findOne.mockResolvedValue(mockTask)
+            let newStatus = TaskStatus.DONE
+            const mockTaskWithNewStatus= {
+                ...createTaskDto,
+                user:mockUser,
+                status:newStatus,
+                id:123
+            }   
+            let res = await tasksService.updateTaskStatus(mockTask['id'],newStatus,mockUser)
+            expect(res).toEqual(mockTaskWithNewStatus)
+            expect(res['status']).toEqual(newStatus)
+        })
+        it('throws an error for id not being found',async()=>{
+            tasksRepository.findOne.mockResolvedValue(null)
+            let newStatus = TaskStatus.DONE
+            expect(tasksService.updateTaskStatus(mockTask['id'],newStatus,mockUser)).rejects.toThrow()
+        })
+    })  
 })
