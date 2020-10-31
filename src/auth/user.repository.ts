@@ -9,18 +9,15 @@ export class UserRepository extends Repository<User>{
     async signUp(authCredentials:AuthCredentialsDto):Promise<void>{
         try {
             const {username,password} = authCredentials
-            const user = new User()
+            const user = this.create()
             user.username = username
             user.salt = await bcrypt.genSalt()
             user.password = await this.hashPassword(password,user.salt)
-            console.log(TAG,'::user password:',user.password)
             await user.save()   
         } catch (error) {
-            console.log(TAG,'::code:',error.code)
             if(error.code == 23505){
                 throw new ConflictException('user already exists')
             }else{
-                // console.log(TAG,'::erro:',JSON.stringify(error))
                 throw new InternalServerErrorException(error['message'])
             }
         }
